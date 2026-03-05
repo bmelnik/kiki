@@ -11,30 +11,24 @@ const tapBeer = [
   { name: "Heineken", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
   { name: "Goldstar", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
   { name: "Poulaner", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
+<<<<<<< HEAD
 
 
+=======
+  { name: "Shapira pale ale", glass: "7.5", "1/3": "8.4", "1/2": "34.0" },
+>>>>>>> fe61fbb (Refactor beverage menu: remove Murphy's and update bottled beer options)
 ];
 
 const bottledBeer = [
   { name: "Corona", price: "10.0" },
   { name: "Heineken", price: "11.0" },
-  { name: "Goldstar", price: "11.0" },
-  { name: "Guinness", price: "13.0" }
+  { name: "Goldstar Unfiltered", price: "11.0" },
 ];
 
 
 const rtds = [
-  { name: "Smirnoff Red", price: "9.5" },
-  { name: "Smirnoff Black", price: "10.0" },
-  { name: "Jim Beam and Cola", price: "11.0" },
-  { name: "Coruba and Cola", price: "9.5" },
-  { name: "Smirnoff Soda Pineapple & Lime", price: "9.5" },
-  { name: "Smirnoff Soda Peach & Lime", price: "9.5" },
-  { name: "Gordon's Pink Gin", price: "10.0" },
-  { name: "Gordon's Passionfruit Gin", price: "10.0" },
-  { name: "Hyoketsu Pineapple", price: "10.0" },
-  { name: "Hyoketsu Peach", price: "10.0" },
-  { name: "Hyoketsu Green Apple", price: "10.0" },
+  { name: "Breezer watermelon", price: "9.5" },
+  { name: "Breezer Lemon", price: "10.0" },
 ];
 
 const whiteWine = [
