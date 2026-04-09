@@ -6,6 +6,8 @@ import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { fullMenuData, type MenuItem } from "@/lib/mainMenuData";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 // Components
 function Header() {
@@ -239,6 +241,35 @@ function MainMenuSection() {
     };
   };
 
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('main-menu');
+    if (!element) return;
+    
+    try {
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+      
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
+      }
+      
+      pdf.save('kiki-menu.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
   const renderSubcategory = (
     subcategory: string,
     items: MenuItem[],
@@ -300,6 +331,18 @@ function MainMenuSection() {
   return (
     <section id="main-menu" className="py-12 md:py-16 bg-white border-t border-gray-100 scroll-mt-24" dir="rtl">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-heading text-[#0D3B52]">תפריט</h2>
+              <button
+                onClick={handleDownloadPDF}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0D3B52] text-white rounded-lg hover:bg-[#0D3B52]/90 transition-colors font-body"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19v-7m0 0V5m0 7H5m7 0h7" />
+                </svg>
+                הורדת תפריט PDF
+              </button>
+            </div>
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {categories.map((category) => (
             <button

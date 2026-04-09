@@ -76,11 +76,11 @@ export const fullMenuData: MenuData = {
   },
   "שתיה קלה": {
     "מים": [
-      { name: "סן בנדטו 0.5", price: 14, extras: "ניתן להוריד: כוס / קרח" }
+      { name: "סן בנדטו 0.5", price: 14}
     ],
     "מוגז": [
-      { name: "סן פלגרינו 0.25", price: 14, extras: "ניתן להוריד: כוס / קרח" },
-      { name: "סן פלגרינו 0.75", price: 24, extras: "ניתן להוריד: כוס / קרח" },
+      { name: "סן פלגרינו 0.25", price: 14 },
+      { name: "סן פלגרינו 0.75", price: 24 },
       { name: "פפסי", price: 14 },
       { name: "פפסי מקס", price: 14 },
       { name: "קולה", price: 15 },
