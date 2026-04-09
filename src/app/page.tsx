@@ -1,221 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
-
-// Menu data
-const tapBeer = [
-  { name: "Heineken", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
-  { name: "Goldstar", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
-  { name: "Poulaner", glass: "8.5", "1/3": "9.5", "1/2": "38.0" },
-<<<<<<< HEAD
-
-
-=======
-  { name: "Shapira pale ale", glass: "7.5", "1/3": "8.4", "1/2": "34.0" },
->>>>>>> fe61fbb (Refactor beverage menu: remove Murphy's and update bottled beer options)
-];
-
-const bottledBeer = [
-  { name: "Corona", price: "10.0" },
-  { name: "Heineken", price: "11.0" },
-  { name: "Goldstar Unfiltered", price: "11.0" },
-];
-
-
-const rtds = [
-  { name: "Breezer watermelon", price: "9.5" },
-  { name: "Breezer Lemon", price: "10.0" },
-];
-
-const whiteWine = [
-  { name: "Kopiko Bay Sauvignon Blanc", glass: "9.5", bottle: "45.0" },
-  { name: "Wither Hills Sauvignon Blanc", glass: "11.0", bottle: "57.0" },
-  { name: "The Ned Sauvignon Blanc", glass: "11.5", bottle: "58.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Kopiko Bay Pinot Gris", glass: "9.5", bottle: "45.0" },
-  { name: "The Ned Pinot Gris", glass: "11.5", bottle: "58.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Wither Hills Riesling", glass: "11.0", bottle: "57.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Kopiko Bay Chardonnay", glass: "9.5", bottle: "45.0" },
-  { name: "Oyster Bay Chardonnay", glass: "11.5", bottle: "58.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Wither Hills Early Light", glass: "10.0", bottle: "" },
-  { name: "Pinot Gris 9.5% abv", glass: "", bottle: "" },
-];
-
-const rose = [
-  { name: "Kopiko Bay Rose", glass: "9.5", bottle: "45.0" },
-  { name: "The Ned Rose", glass: "11.5", bottle: "58.0" },
-];
-
-const redWine = [
-  { name: "Kopiko Bay Merlot", glass: "9.5", bottle: "45.0" },
-  { name: "Huntaway Merlot", glass: "11.0", bottle: "55.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Graham Norton Shiraz", glass: "11.0", bottle: "55.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Wither Hills Syrah", glass: "11.5", bottle: "58.0" },
-  { name: "", glass: "", bottle: "" },
-  { name: "Kopiko Bay Pinot Noir", glass: "9.5", bottle: "45.0" },
-  { name: "Dashwood Pinot Noir", glass: "11.0", bottle: "57.0" },
-  { name: "Marisco Kings Wrath Pinot Noir", glass: "-", bottle: "75.0" },
-];
-
-const sparkling = [
-  { name: "Lindauer Prosecco", glass: "9.5", bottle: "48.0" },
-  { name: "Te Hana Reserve Brut", glass: "", bottle: "52.0" },
-  { name: "Deutz Cuvee Brut NV", glass: "", bottle: "85.0" },
-  { name: "Lindauer Brut", glass: "10.5", bottle: "47.0" },
-  { name: "Lindauer Sauvignon Blanc", glass: "10.5", bottle: "-" },
-  { name: "Lindauer Pinot Gris", glass: "10.5", bottle: "-" },
-  { name: "Lindauer Fraise", glass: "10.5", bottle: "-" },
-];
-
-const classicCocktails = [
-  { name: "Margarita", description: "tequila, triple sec, lime juice, sugar syrup\nwant it flavoured? just ask our team!", price: "18" },
-  { name: "Mojito", description: "bacardi, lime juice, sugar, mint soda\nwant it flavoured? just ask our team!", price: "16" },
-  { name: "Espresso Martini", description: "vodka, coffee liqueur and fresh espresso\nserved chilled and frothy", price: "18" },
-  { name: "Negroni", description: "gin, campari and sweet vermouth\na bitter-sweet italian classic", price: "19" },
-  { name: "Old Fashioned", description: "bourbon whiskey, bitters and sugar\nstirred over ice with an orange twist", price: "20" },
-  { name: "Aperol Spritz", description: "aperol, prosecco and soda water\nlight, refreshing and bubbly", price: "16" },
-
-];
-
-const mocktails = [
-  { name: "Nonalcoholic Mojito", description: "fresh mint, lime juice, sugar syrup and soda\nall the flavor, none of the alcohol", price: "10" },
-  { name: "Cranberry Spritzer", description: "cranberry juice, sparkling cider and soda\nwith fresh cranberries and orange", price: "10" },
-  { name: "Apple Cooler", description: "apple juice, grenadine, mint and\nsoda water", price: "9" },
-];
-
-const signatures = [
-  { name: "Basil Smash", description: "gin, lemon juice, sugar syrup and fresh basil\nvibrant, herbaceous and refreshing", price: "18" },
-  { name: "Berry Mojito", description: "light rum, fresh blackberries, raspberries and strawberries,\nmint, lime juice, sugar and soda", price: "18" },
-  { name: "Summer's Nectar", description: "malibu, peach liqueur, vodka,\ncranberry and pineapple juice", price: "14" },
-  { name: "White Wine Sangria", description: "sauvignon blanc, orange juice, peach\niced tea, pineapple juice, lemonade", price: "14" },
-  { name: "Paloma", description: "tequila, grapefruit soda and lime juice\nwant it spicy? just ask our team!", price: "17" },
-  { name: "Cocktail of the month", description: "", price: "POA" },
-];
-
-const nonAlcoholic = [
-  { name: "Coca Cola or Zero Sugar", price: "4.5" },
-  { name: "Sprite or Zero Sugar", price: "4.5" },
-  { name: "Fanta", price: "4.5" },
-  { name: "Iced Tea", price: "4.5" },
-  { name: "Water", price: "5.0" },
-  { name: "Soda Water", price: "1.0" },
-  { name: "Red Bull", price: "6.5" },
-  { name: "Orange Juice", price: "5.0" },
-  { name: "Cranberry Juice", price: "5.0" },
-  { name: "Apple Juice", price: "5.0" },
-  { name: "Tomato Juice", price: "5.0" },
-  { name: "Lemon Juice", price: "5.0" },
-  { name: "Pineapple Juice", price: "5.0" },
-  { name: "Grapefruit Soda", price: "5.0" },
-];
-
-const spirits = {
-  vodka: [
-    { name: "Beluga", price25: "15.0", price50: "28.0" },
-    { name: "Grey Goose", price25: "14.0", price50: "26.0" },
-    { name: "Belvedere", price25: "14.0", price50: "26.0" },
-    { name: "Ketel One", price25: "13.0", price50: "24.0" },
-    { name: "Absolut", price25: "12.0", price50: "22.0" },
-    { name: "Smirnoff", price25: "12.0", price50: "22.0" },
-    { name: "Stolichnaya", price25: "12.0", price50: "22.0" },
-    { name: "Russian Standard", price25: "12.0", price50: "22.0" },
-  ],
-
-  gin: [
-    { name: "Hendrick’s", price25: "14.0", price50: "26.0" },
-    { name: "Roku", price25: "14.0", price50: "26.0" },
-    { name: "Bombay Sapphire", price25: "12.0", price50: "22.0" },
-    { name: "Tanqueray", price25: "12.0", price50: "22.0" },
-    { name: "Gordon’s", price25: "11.0", price50: "20.0" },
-  ],
-
-  rum: [
-    { name: "Ron Zacapa 23", price25: "16.0", price50: "30.0" },
-    { name: "Bacardi Dark/Spiced ", price25: "12.0", price50: "22.0" },    
-    { name: "Bacardi Blanca", price25: "12.0", price50: "22.0" },
-    { name: "Captain Morgan Spiced", price25: "12.0", price50: "22.0" },
-  ],
-
-  tequila: [
-    { name: "Patrón Silver", price25: "15.0", price50: "28.0" },
-    { name: "Patrón Anejo", price25: "15.0", price50: "28.0" },
-    { name: "1800 Silver", price25: "14.0", price50: "26.0" },
-    { name: "Jose Cuervo Especial", price25: "13.0", price50: "24.0" },
-    { name: "Jose Cuervo Silver", price25: "13.0", price50: "24.0" },
-
-  ],
-
-  irishWhiskey: [
-    { name: "Teeling Small Batch", price25: "15.0", price50: "28.0" },
-    { name: "Jameson", price25: "14.0", price50: "26.0" },
-    { name: "Bushmills Original", price25: "14.0", price50: "26.0" },
-    { name: "Tullamore D.E.W.", price25: "14.0", price50: "26.0" },
-  ],
-
-  scotchWhiskey: [
-    { name: "Johnnie Walker Black Label", price25: "14.0", price50: "26.0" },
-    { name: "Chivas Regal 12", price25: "14.0", price50: "26.0" },
-    { name: "Ballantine’s Finest", price25: "13.0", price50: "24.0" },
-
-  ],
-
-  bourbonWhiskey: [
-    { name: "Maker’s Mark", price25: "15.0", price50: "28.0" },
-    { name: "Buffalo Trace", price25: "15.0", price50: "28.0" },
-    { name: "Four Roses", price25: "15.0", price50: "28.0" },
-    { name: "Jim Beam", price25: "14.0", price50: "26.0" },
-    { name: "Jack Daniel's", price25: "14.0", price50: "26.0" },
-  ],
-
-  singleMalt: [
-    { name: "Lagavulin 16", price25: "19.0", price50: "36.0" },
-    { name: "Macallan 12", price25: "18.0", price50: "34.0" },
-    { name: "Balvenie 12 DoubleWood", price25: "17.0", price50: "32.0" },
-    { name: "Ardbeg 10", price25: "17.0", price50: "32.0" },
-    { name: "Glenfiddich 12", price25: "15.0", price50: "28.0" },
-    { name: "Glenlivet 12", price25: "15.0", price50: "28.0" },
-    { name: "Glenmorangie Original", price25: "15.0", price50: "28.0" },
-  ],
-};
-
-
-
-const liqueurs = [
-  { name: "Baileys", price: "10.0" },
-  { name: "Kahlua", price: "10.0" },
-  { name: "Amaretto", price: "11.0" },
-  { name: "Triple Sec", price: "10.0" },
-  { name: "Campari", price: "11.0" },
-];
+import { fullMenuData, type MenuItem } from "@/lib/mainMenuData";
 
 // Components
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuCategories = Object.keys(fullMenuData);
 
   const navLinks = [
-    { name: "Home", href: "#" },
-    { name: "Menus", href: "#", dropdown: true },
-    { name: "Reservations", href: "#" },
-    { name: "About Us", href: "#" },
+    { name: "בית", href: "#" },
+    { name: "תפריט", href: "#main-menu" },
+    { name: "הזמנת מקום", href: "#" },
+    { name: "אודות", href: "#" },
   ];
 
   return (
-    <header className="bg-[#1d1a18] sticky top-0 z-50">
+    <header className="bg-[#0D3B52] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="#" className="flex-shrink-0">
             <Image
-              src="/kiki-logo.png"
+              src="/kiki-logo.svg"
               alt="Kiki"
               width={200}
               height={200}
@@ -225,15 +36,46 @@ function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.name === "תפריט" ? (
+                <div key={link.name} className="relative group">
+                  <Link
+                    href={link.href}
+                    className="flex items-center gap-1 text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide"
+                  >
+                    {link.name}
+                    <svg className="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </Link>
+                  <div className="absolute left-1/2 top-full hidden min-w-40 -translate-x-1/2 bg-[#0D3B52] border border-[#333] shadow-lg group-hover:block z-50" dir="rtl">
+                    {menuCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById('main-menu');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                          // trigger category via custom event
+                          window.dispatchEvent(new CustomEvent('set-menu-category', { detail: cat }));
+                        }}
+                        className="block w-full text-right px-4 py-2 text-sm text-white hover:bg-[#2a2522] transition-colors font-body"
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide"
+                >
+                  {link.name}
+                </Link>
+              )
+            )}
           </nav>
 
           {/* Right side */}
@@ -260,7 +102,7 @@ function Header() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#1d1a18] border-t border-[#333]">
+        <div className="lg:hidden bg-[#0D3B52] border-t border-[#333]">
           <nav className="px-4 py-4 space-y-3">
             {navLinks.map((link) => (
               <Link
@@ -289,7 +131,7 @@ function Hero() {
       />
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative z-10 flex items-center justify-center h-full">
-        <h1 className="font-script text-white text-5xl md:text-7xl">Drinks Menu</h1>
+        <p className="text-white text-lg md:text-2xl font-body tracking-widest">ארוחות בוקר - בר יין</p>
       </div>
     </section>
   );
@@ -299,348 +141,193 @@ function MenuDivider() {
   return <div className="border-t border-dashed border-gray-300 my-6" />;
 }
 
-function BeerWineSection() {
-  return (
-    <section className="py-12 md:py-16 bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-center text-[#1d1a18] tracking-wider mb-12">
-          BEER & WINE
-        </h2>
+function MainMenuSection() {
+  const categories = Object.keys(fullMenuData);
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-8">
-          {/* Left Column - Beer */}
-          <div>
-            {/* Tap Beer */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">TAP BEER</h3>
+  // Listen for category selection from the header dropdown
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setActiveCategory((e as CustomEvent<string>).detail);
+    };
+    window.addEventListener('set-menu-category', handler);
+    return () => window.removeEventListener('set-menu-category', handler);
+  }, []);
+  const subcategories = Object.entries(fullMenuData[activeCategory] as Record<string, MenuItem[]>);
+  const middle = Math.ceil(subcategories.length / 2);
+  const leftColumn = subcategories.slice(0, middle);
+  const rightColumn = subcategories.slice(middle);
+
+  const spiritLikeSubcategories = new Set([
+    "וודקה",
+    "ג'ין",
+    "וויסקי",
+    "סינגל מאלט",
+    "רום",
+    "טקילה",
+    "אניס",
+    "קוניאק",
+    "אפרטיף",
+    "ליקרים",
+  ]);
+
+  type GroupedRow = {
+    baseName: string;
+    leftPrice?: number;
+    rightPrice?: number;
+    desc?: string;
+    extras?: string;
+  };
+
+  const getGroupedRows = (subcategory: string, items: MenuItem[]) => {
+    if (subcategory !== "בירה חבית" && !spiritLikeSubcategories.has(subcategory)) {
+      return null;
+    }
+
+    const rowsMap = new Map<string, GroupedRow>();
+    const isBeerTap = subcategory === "בירה חבית";
+    const leftLabel = isBeerTap ? "0.33" : "צ'ייסר";
+    const rightLabel = isBeerTap ? "0.5" : "מנה";
+
+    items.forEach((item) => {
+      let baseName = item.name;
+      let side: "left" | "right" | null = null;
+
+      if (isBeerTap) {
+        const match = item.name.match(/^(.*)\s(0\.33|0\.5)$/);
+        if (!match) {
+          return;
+        }
+        baseName = match[1].trim();
+        side = match[2] === "0.33" ? "left" : "right";
+      } else {
+        if (item.name.endsWith(" צ'ייסר")) {
+          baseName = item.name.replace(/\sצ'ייסר$/, "").trim();
+          side = "left";
+        } else if (item.name.endsWith(" מנה")) {
+          baseName = item.name.replace(/\sמנה$/, "").trim();
+          side = "right";
+        } else {
+          return;
+        }
+      }
+
+      const existing = rowsMap.get(baseName) ?? { baseName };
+      if (side === "left") {
+        existing.leftPrice = item.price;
+      }
+      if (side === "right") {
+        existing.rightPrice = item.price;
+      }
+      if (!existing.desc && item.desc) {
+        existing.desc = item.desc;
+      }
+      if (!existing.extras && item.extras) {
+        existing.extras = item.extras;
+      }
+      rowsMap.set(baseName, existing);
+    });
+
+    if (rowsMap.size === 0) {
+      return null;
+    }
+
+    return {
+      leftLabel,
+      rightLabel,
+      rows: Array.from(rowsMap.values()),
+    };
+  };
+
+  const renderSubcategory = (
+    subcategory: string,
+    items: MenuItem[],
+    index: number,
+    total: number,
+  ) => {
+    const grouped = getGroupedRows(subcategory, items);
+
+    return (
+      <div key={subcategory}>
+        <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">{subcategory}</h3>
+
+        {grouped ? (
+          <>
             <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
-              <span className="w-10 text-right">1/3</span>
-              <span className="w-10 text-right">1/2</span>
+              <span className="w-12 text-right">{grouped.leftLabel}</span>
+              <span className="w-12 text-right">{grouped.rightLabel}</span>
             </div>
-            {tapBeer.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item["1/3"]}</span>
-                  <span className="w-10 text-right font-medium">{item["1/2"]}</span>
-                </div>
-              </div>
-            ))}
-
-            <MenuDivider />
-
-            {/* Bottled Beer */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">BOTTLED BEER</h3>
-            {bottledBeer.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <span className="font-medium">{item.price}</span>
-              </div>
-            ))}
-
-            <MenuDivider />
-
-            {/* RTD's */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">RTD'S</h3>
-            {rtds.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <span className="font-medium">{item.price}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Right Column - Wine */}
-          <div>
-            {/* White Wine */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">WHITE WINE</h3>
-            <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
-              <span className="w-10 text-right">glass</span>
-              <span className="w-12 text-right">bottle</span>
-            </div>
-            {whiteWine.map((item, index) => (
-              item.name ? (
-                <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                  <span className="text-[#1d1a18]">{item.name}</span>
+            {grouped.rows.map((row, rowIndex) => (
+              <div key={`${row.baseName}-${rowIndex}`} className="mb-3">
+                <div className="flex justify-between items-center py-1 font-body text-sm">
+                  <span className="text-[#0D3B52] font-semibold">{row.baseName}</span>
                   <div className="flex space-x-6">
-                    <span className="w-10 text-right font-medium">{item.glass}</span>
-                    <span className="w-12 text-right font-medium">{item.bottle}</span>
+                    <span className="w-12 text-right font-medium">{row.leftPrice ?? "-"}</span>
+                    <span className="w-12 text-right font-medium">{row.rightPrice ?? "-"}</span>
                   </div>
                 </div>
-              ) : <div key={index} className="h-2" />
-            ))}
-
-            <MenuDivider />
-
-            {/* Rose */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">ROSE</h3>
-            {rose.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.glass}</span>
-                  <span className="w-12 text-right font-medium">{item.bottle}</span>
-                </div>
+                {row.desc && (
+                  <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{row.desc}</p>
+                )}
+                {row.extras && (
+                  <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{row.extras}</p>
+                )}
               </div>
             ))}
-
-            <MenuDivider />
-
-            {/* Red Wine */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">RED WINE</h3>
-            {redWine.map((item, index) => (
-              item.name ? (
-                <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                  <span className="text-[#1d1a18]">{item.name}</span>
-                  <div className="flex space-x-6">
-                    <span className="w-10 text-right font-medium">{item.glass}</span>
-                    <span className="w-12 text-right font-medium">{item.bottle}</span>
-                  </div>
-                </div>
-              ) : <div key={index} className="h-2" />
-            ))}
-
-            <MenuDivider />
-
-            {/* Sparkling */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">SPARKLING</h3>
-            {sparkling.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.glass}</span>
-                  <span className="w-12 text-right font-medium">{item.bottle}</span>
-                </div>
+          </>
+        ) : (
+          items.map((item, itemIndex) => (
+            <div key={item.name + itemIndex} className="mb-4">
+              <div className="flex justify-between items-start gap-4">
+                <span className="text-[#0D3B52] font-semibold font-body">{item.name}</span>
+                <span className="font-medium font-body whitespace-nowrap">{item.price}</span>
               </div>
-            ))}
-          </div>
-        </div>
+              {item.desc && (
+                <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.desc}</p>
+              )}
+              {item.extras && (
+                <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{item.extras}</p>
+              )}
+            </div>
+          ))
+        )}
+
+        {index !== total - 1 && <MenuDivider />}
       </div>
-    </section>
-  );
-}
+    );
+  };
 
-function CocktailsSection() {
   return (
-    <section className="py-12 md:py-16 bg-white border-t border-gray-100">
+    <section id="main-menu" className="py-12 md:py-16 bg-white border-t border-gray-100 scroll-mt-24" dir="rtl">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-center text-[#1d1a18] tracking-wider mb-12">
-          COCKTAILS &<br />NON ALCOHOLICS
-        </h2>
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setActiveCategory(category)}
+              className={`px-4 py-1.5 rounded-full border font-body text-sm transition-colors ${
+                activeCategory === category
+                  ? "bg-[#0D3B52] text-white border-[#0D3B52]"
+                  : "bg-white text-[#0D3B52] border-gray-300 hover:bg-gray-100"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-8">
-          {/* Left Column */}
           <div>
-            {/* Classic Cocktails */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">CLASSIC COCKTAILS</h3>
-            {classicCocktails.map((item, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex justify-between items-start">
-                  <span className="text-[#1d1a18] font-semibold font-body">{item.name}</span>
-                  <span className="font-medium font-body">{item.price}</span>
-                </div>
-                {item.description && (
-                  <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.description}</p>
-                )}
-              </div>
-            ))}
-
-            <MenuDivider />
-
-            {/* Our Signatures */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">OUR SIGNATURES</h3>
-            {signatures.map((item, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex justify-between items-start">
-                  <span className="text-[#1d1a18] font-semibold font-body">{item.name}</span>
-                  <span className="font-medium font-body">{item.price}</span>
-                </div>
-                {item.description && (
-                  <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.description}</p>
-                )}
-              </div>
-            ))}
+            {leftColumn.map(([subcategory, items], index) =>
+              renderSubcategory(subcategory, items, index, leftColumn.length),
+            )}
           </div>
 
-          {/* Right Column */}
           <div>
-            {/* Mocktails */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">MOCKTAILS</h3>
-            {mocktails.map((item, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex justify-between items-start">
-                  <span className="text-[#1d1a18] font-semibold font-body">{item.name}</span>
-                  <span className="font-medium font-body">{item.price}</span>
-                </div>
-                {item.description && (
-                  <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.description}</p>
-                )}
-              </div>
-            ))}
-
-            <MenuDivider />
-
-            {/* Non Alcoholic */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">NON ALCOHOLIC</h3>
-            {nonAlcoholic.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-0.5 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <span className="font-medium">{item.price}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AlcoholicBeveragesSection() {
-  return (
-    <section className="py-12 md:py-16 bg-white border-t border-gray-100">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-center text-[#1d1a18] tracking-wider mb-12">
-          ALCOHOLIC BEVERAGES
-        </h2>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-8">
-          {/* Left Column */}
-          <div>
-            {/* Spirits */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">SPIRITS</h3>
-            
-            {/* Column headers */}
-            <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
-              <span className="w-10 text-right">25ml</span>
-              <span className="w-12 text-right">50ml</span>
-            </div>
-            
-            {/* Vodka */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Vodka</h4>
-            {spirits.vodka.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Gin */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Gin</h4>
-            {spirits.gin.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Rum */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Rum</h4>
-            {spirits.rum.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Tequila */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Tequila</h4>
-            {spirits.tequila.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right Column */}
-          <div>
-            {/* Column headers */}
-            <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
-              <span className="w-10 text-right">25ml</span>
-              <span className="w-12 text-right">50ml</span>
-            </div>
-            
-            {/* Irish Whiskey */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Irish Whiskey</h4>
-            {spirits.irishWhiskey.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Scotch Whiskey */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Scotch Whiskey</h4>
-            {spirits.scotchWhiskey.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Bourbon Whiskey */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Bourbon Whiskey</h4>
-            {spirits.bourbonWhiskey.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-            
-            <MenuDivider />
-            
-            {/* Single Malt */}
-            <h4 className="font-heading text-lg text-[#1d1a18] mb-2 tracking-wider">Single Malt</h4>
-            {spirits.singleMalt.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <div className="flex space-x-6">
-                  <span className="w-10 text-right font-medium">{item.price25}</span>
-                  <span className="w-12 text-right font-medium">{item.price50}</span>
-                </div>
-              </div>
-            ))}
-
-            <MenuDivider />
-
-            {/* Liqueurs */}
-            <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">LIQUEURS</h3>
-            {liqueurs.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-1 font-body text-sm">
-                <span className="text-[#1d1a18]">{item.name}</span>
-                <span className="font-medium">{item.price}</span>
-              </div>
-            ))}
+            {rightColumn.map(([subcategory, items], index) =>
+              renderSubcategory(subcategory, items, index, rightColumn.length),
+            )}
           </div>
         </div>
       </div>
@@ -650,13 +337,13 @@ function AlcoholicBeveragesSection() {
 
 function Footer() {
   return (
-    <footer className="bg-[#1d1a18] text-white py-12">
+    <footer className="bg-[#0D3B52] text-white py-12" dir="rtl">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo */}
-          <div className="flex justify-center md:justify-start">
+          <div className="flex justify-center md:justify-end">
             <Image
-              src="/kiki-logo.png"
+              src="/kiki-logo.svg"
               alt="Kiki"
               width={200}
               height={200}
@@ -665,29 +352,31 @@ function Footer() {
           </div>
 
           {/* Contact */}
-          <div className="text-center md:text-left">
-            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">CONTACT</h4>
+          <div className="text-center md:text-right">
+            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">צור קשר</h4>
             <div className="font-body text-sm text-gray-300 space-y-2">
-              <p>Address: Rafael Eitan 5<br />Em HaMoshavot<br />Petah Tikva</p>
-              <p className="pt-2">Phone: <Link href="tel:0547668877" className="hover:text-[#7e6444] transition-colors">054-7668877</Link></p>
-              <p className="pt-2">Email:<br /><Link href="mailto:admin@kiki.rest.co.il" className="hover:text-[#7e6444] transition-colors">admin@kiki.rest.co.il</Link></p>
+              <p>כתובת: רפאל איתן 5<br />אם המושבות<br />פתח תקווה</p>
+              <p className="pt-2">טלפון: <Link href="tel:0547668877" className="hover:text-[#7e6444] transition-colors">054-7668877</Link></p>
+              <p className="pt-2">אימייל:<br /><Link href="mailto:admin@kiki.rest.co.il" className="hover:text-[#7e6444] transition-colors">admin@kiki.rest.co.il</Link></p>
             </div>
           </div>
 
           {/* Opening Hours */}
-          <div className="text-center md:text-left">
-            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">OPENING HOURS</h4>
+          <div className="text-center md:text-right">
+            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">שעות פתיחה</h4>
             <div className="font-body text-sm text-gray-300">
-              <p>Currently Open</p>
-              <p>Closes 10:00PM</p>
+              <p>א - ה: 08:00 - 00:00</p>
+              <p>ו: 08:00 - 15:00</p>
+              <p>ש: סגור</p>
             </div>
           </div>
 
           {/* Connect */}
-          <div className="text-center md:text-left">
-            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">CONNECT WITH US</h4>
+          <div className="text-center md:text-right">
+            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">עקבו אחרינו</h4>
             <div className="font-body text-sm text-gray-300 space-y-2">
-              <p>[Social Media Links]</p>
+              <p><Link href="https://www.instagram.com/kiki_bar.pt/" className="hover:text-[#7e6444] transition-colors">אינסטגרם</Link></p>
+              <p><Link href="https://www.facebook.com/kiki_bar.pt/" className="hover:text-[#7e6444] transition-colors">פייסבוק</Link></p>
             </div>
           </div>
         </div>
@@ -701,9 +390,7 @@ export default function DrinksMenuPage() {
     <main className="min-h-screen">
       <Header />
       <Hero />
-      <BeerWineSection />
-      <CocktailsSection />
-      <AlcoholicBeveragesSection />
+      <MainMenuSection />
       <Footer />
     </main>
   );
