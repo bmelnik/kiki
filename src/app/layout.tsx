@@ -3,10 +3,9 @@ import "./globals.css";
 import { ClientBody } from "./ClientBody";
 
 export const metadata: Metadata = {
-  title: "Drinks | Restaurant | Bar | Petah Tikva - Kiki",
-  description: "We have a wide selection of beers, wines and spirits. Ask about our cocktails!!",
+  title: "ארוחות בוקר ובר יין - קיקי בר",
   icons: {
-    icon: "/kiki-logo.png",
+    icon: "/kiki-logo.svg",
   },
 };
 
