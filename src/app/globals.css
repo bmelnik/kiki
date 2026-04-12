@@ -51,3 +51,33 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #5a4531;
 }
+
+/* Print-optimized styles for /menu-print */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    background: #0d3b52;
+  }
+
+  .menu-print-page {
+    background: #0d3b52;
+  }
+
+  .menu-print-no-break,
+  .menu-print-subcategory {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .menu-print-subcategory > div > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

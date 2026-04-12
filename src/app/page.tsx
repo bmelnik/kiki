@@ -6,8 +6,7 @@ import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { fullMenuData, type MenuItem } from "@/lib/mainMenuData";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+import { getGroupedRows } from "@/lib/menuGrouping";
 
 // Components
 function Header() {
@@ -160,115 +159,6 @@ function MainMenuSection() {
   const leftColumn = subcategories.slice(0, middle);
   const rightColumn = subcategories.slice(middle);
 
-  const spiritLikeSubcategories = new Set([
-    "וודקה",
-    "ג'ין",
-    "וויסקי",
-    "סינגל מאלט",
-    "רום",
-    "טקילה",
-    "אניס",
-    "קוניאק",
-    "אפרטיף",
-    "ליקרים",
-  ]);
-
-  type GroupedRow = {
-    baseName: string;
-    leftPrice?: number;
-    rightPrice?: number;
-    desc?: string;
-    extras?: string;
-  };
-
-  const getGroupedRows = (subcategory: string, items: MenuItem[]) => {
-    if (subcategory !== "בירה חבית" && !spiritLikeSubcategories.has(subcategory)) {
-      return null;
-    }
-
-    const rowsMap = new Map<string, GroupedRow>();
-    const isBeerTap = subcategory === "בירה חבית";
-    const leftLabel = isBeerTap ? "0.33" : "צ'ייסר";
-    const rightLabel = isBeerTap ? "0.5" : "מנה";
-
-    items.forEach((item) => {
-      let baseName = item.name;
-      let side: "left" | "right" | null = null;
-
-      if (isBeerTap) {
-        const match = item.name.match(/^(.*)\s(0\.33|0\.5)$/);
-        if (!match) {
-          return;
-        }
-        baseName = match[1].trim();
-        side = match[2] === "0.33" ? "left" : "right";
-      } else {
-        if (item.name.endsWith(" צ'ייסר")) {
-          baseName = item.name.replace(/\sצ'ייסר$/, "").trim();
-          side = "left";
-        } else if (item.name.endsWith(" מנה")) {
-          baseName = item.name.replace(/\sמנה$/, "").trim();
-          side = "right";
-        } else {
-          return;
-        }
-      }
-
-      const existing = rowsMap.get(baseName) ?? { baseName };
-      if (side === "left") {
-        existing.leftPrice = item.price;
-      }
-      if (side === "right") {
-        existing.rightPrice = item.price;
-      }
-      if (!existing.desc && item.desc) {
-        existing.desc = item.desc;
-      }
-      if (!existing.extras && item.extras) {
-        existing.extras = item.extras;
-      }
-      rowsMap.set(baseName, existing);
-    });
-
-    if (rowsMap.size === 0) {
-      return null;
-    }
-
-    return {
-      leftLabel,
-      rightLabel,
-      rows: Array.from(rowsMap.values()),
-    };
-  };
-
-  const handleDownloadPDF = async () => {
-    const element = document.getElementById('main-menu');
-    if (!element) return;
-    
-    try {
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= 297;
-      
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
-      }
-      
-      pdf.save('kiki-menu.pdf');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
-  };
 
   const renderSubcategory = (
     subcategory: string,
@@ -333,15 +223,17 @@ function MainMenuSection() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-heading text-[#0D3B52]">תפריט</h2>
-              <button
-                onClick={handleDownloadPDF}
+              <a
+                href="/menu-pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 bg-[#0D3B52] text-white rounded-lg hover:bg-[#0D3B52]/90 transition-colors font-body"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19v-7m0 0V5m0 7H5m7 0h7" />
                 </svg>
                 הורדת תפריט PDF
-              </button>
+              </a>
             </div>
         <div className="flex flex-wrap justify-center gap-2 mb-10">
           {categories.map((category) => (
