@@ -34,7 +34,7 @@ function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) =>
               link.name === "תפריט" ? (
                 <div key={link.name} className="relative group">
