@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { fullMenuData, type MenuItem } from "@/lib/mainMenuData";
+import { fullMenuData, type MenuBranchMap, type MenuItem } from "@/lib/mainMenuData";
 import { getGroupedRows } from "@/lib/menuGrouping";
 
 // Components
@@ -152,66 +152,90 @@ function MainMenuSection() {
     window.addEventListener('set-menu-category', handler);
     return () => window.removeEventListener('set-menu-category', handler);
   }, []);
-  const subcategories = Object.entries(fullMenuData[activeCategory] as Record<string, MenuItem[]>);
-  const middle = Math.ceil(subcategories.length / 2);
-  const leftColumn = subcategories.slice(0, middle);
-  const rightColumn = subcategories.slice(middle);
 
+  const activeBranch = fullMenuData[activeCategory];
+  const sections = Object.entries(activeBranch as MenuBranchMap);
+  const middle = Math.ceil(sections.length / 2);
+  const leftColumn = sections.slice(0, middle);
+  const rightColumn = sections.slice(middle);
 
-  const renderSubcategory = (
-    subcategory: string,
-    items: MenuItem[],
-    index: number,
-    total: number,
-  ) => {
+  const isMenuItemArray = (branch: MenuItem[] | MenuBranchMap): branch is MenuItem[] => Array.isArray(branch);
+
+  const renderItems = (subcategory: string, items: MenuItem[]) => {
     const grouped = getGroupedRows(subcategory, items);
 
-    return (
-      <div key={subcategory}>
-        <h3 className="font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider">{subcategory}</h3>
-
-        {grouped ? (
-          <>
-            <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
-              <span className="w-12 text-right">{grouped.leftLabel}</span>
-              <span className="w-12 text-right">{grouped.rightLabel}</span>
-            </div>
-            {grouped.rows.map((row, rowIndex) => (
-              <div key={`${row.baseName}-${rowIndex}`} className="mb-3">
-                <div className="flex justify-between items-center py-1 font-body text-sm">
-                  <span className="text-[#0D3B52] font-semibold">{row.baseName}</span>
-                  <div className="flex space-x-6">
-                    <span className="w-12 text-right font-medium">{row.leftPrice ?? "-"}</span>
-                    <span className="w-12 text-right font-medium">{row.rightPrice ?? "-"}</span>
-                  </div>
+    if (grouped) {
+      return (
+        <>
+          <div className="mb-2 flex justify-end text-xs text-gray-500 font-body space-x-6 pr-2">
+            <span className="w-12 text-right">{grouped.leftLabel}</span>
+            <span className="w-12 text-right">{grouped.rightLabel}</span>
+          </div>
+          {grouped.rows.map((row, rowIndex) => (
+            <div key={`${row.baseName}-${rowIndex}`} className="mb-3">
+              <div className="flex justify-between items-center py-1 font-body text-sm">
+                <span className="text-[#0D3B52] font-semibold">{row.baseName}</span>
+                <div className="flex space-x-6">
+                  <span className="w-12 text-right font-medium">{row.leftPrice ?? "-"}</span>
+                  <span className="w-12 text-right font-medium">{row.rightPrice ?? "-"}</span>
                 </div>
-                {row.desc && (
-                  <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{row.desc}</p>
-                )}
-                {row.extras && (
-                  <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{row.extras}</p>
-                )}
+              </div>
+              {row.desc && (
+                <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{row.desc}</p>
+              )}
+              {row.extras && (
+                <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{row.extras}</p>
+              )}
+            </div>
+          ))}
+        </>
+      );
+    }
+
+    return items.map((item, itemIndex) => (
+      <div key={item.name + itemIndex} className="mb-4">
+        <div className="flex justify-between items-start gap-4">
+          <span className="text-[#0D3B52] font-semibold font-body">{item.name}</span>
+          <span className="font-medium font-body whitespace-nowrap">{item.price}</span>
+        </div>
+        {item.desc && (
+          <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.desc}</p>
+        )}
+        {item.extras && (
+          <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{item.extras}</p>
+        )}
+      </div>
+    ));
+  };
+
+  const renderBranch = (
+    title: string,
+    branch: MenuItem[] | MenuBranchMap,
+    index: number,
+    total: number,
+    nested = false,
+  ) => {
+    const headingClass = nested
+      ? "font-heading text-lg md:text-xl text-[#7e6444] mb-3 tracking-wider"
+      : "font-heading text-xl md:text-2xl text-[#7e6444] mb-4 tracking-wider";
+
+    return (
+      <div key={`${title}-${index}`}>
+        <h3 className={headingClass}>{title}</h3>
+
+        {isMenuItemArray(branch) ? (
+          renderItems(title, branch)
+        ) : (
+          <div className="space-y-8">
+            {Object.entries(branch).map(([nestedTitle, nestedBranch], nestedIndex, nestedEntries) => (
+              <div key={`${title}-${nestedTitle}`}>
+                {renderBranch(nestedTitle, nestedBranch, nestedIndex, nestedEntries.length, true)}
               </div>
             ))}
-          </>
-        ) : (
-          items.map((item, itemIndex) => (
-            <div key={item.name + itemIndex} className="mb-4">
-              <div className="flex justify-between items-start gap-4">
-                <span className="text-[#0D3B52] font-semibold font-body">{item.name}</span>
-                <span className="font-medium font-body whitespace-nowrap">{item.price}</span>
-              </div>
-              {item.desc && (
-                <p className="text-gray-500 text-xs italic font-body whitespace-pre-line">{item.desc}</p>
-              )}
-              {item.extras && (
-                <p className="text-gray-400 text-[11px] font-body whitespace-pre-line">{item.extras}</p>
-              )}
-            </div>
-          ))
+          </div>
         )}
 
-        {index !== total - 1 && <MenuDivider />}
+        {index !== total - 1 && !nested && <MenuDivider />}
       </div>
     );
   };
@@ -241,15 +265,11 @@ function MainMenuSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-8">
           <div>
-            {leftColumn.map(([subcategory, items], index) =>
-              renderSubcategory(subcategory, items, index, leftColumn.length),
-            )}
+            {leftColumn.map(([title, branch], index) => renderBranch(title, branch, index, leftColumn.length))}
           </div>
 
           <div>
-            {rightColumn.map(([subcategory, items], index) =>
-              renderSubcategory(subcategory, items, index, rightColumn.length),
-            )}
+            {rightColumn.map(([title, branch], index) => renderBranch(title, branch, index, rightColumn.length))}
           </div>
         </div>
       </div>
