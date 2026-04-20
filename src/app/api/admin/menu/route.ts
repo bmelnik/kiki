@@ -19,14 +19,18 @@ export async function POST(req: NextRequest) {
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
     return NextResponse.json({ error: "Invalid menu data" }, { status: 400 });
   }
+  if (process.env.NODE_ENV === "production" && !process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: "BLOB_READ_WRITE_TOKEN is not set. Go to Vercel → Storage → Create Blob store and connect it to this project." },
+      { status: 500 }
+    );
+  }
   try {
     await writeMenuData(body);
-  } catch {
+  } catch (err) {
+    console.error("writeMenuData failed:", err);
     return NextResponse.json(
-      {
-        error:
-          "Failed to persist menu changes on server storage. Configure writable persistent storage for production.",
-      },
+      { error: String(err instanceof Error ? err.message : err) },
       { status: 500 }
     );
   }
