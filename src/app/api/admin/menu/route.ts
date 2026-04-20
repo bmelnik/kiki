@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!getVerifiedToken(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(readMenuData());
+  return NextResponse.json(await readMenuData());
 }
 
 /** POST /api/admin/menu – replaces entire menu data (requires auth) */
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid menu data" }, { status: 400 });
   }
   try {
-    writeMenuData(body);
+    await writeMenuData(body);
   } catch {
     return NextResponse.json(
       {

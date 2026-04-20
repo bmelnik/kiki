@@ -1,25 +1,79 @@
-import fs from "fs";
-import path from "path";
 import { fullMenuData } from "@/lib/mainMenuData";
 
-const DATA_FILE = path.join(process.cwd(), "data", "menu.json");
+const BLOB_FILENAME = "kiki-menu.json";
 
-export function readMenuData(): object {
+// ── Vercel Blob helpers ───────────────────────────────────────────────────────
+
+async function blobRead(): Promise<object | null> {
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = fs.readFileSync(DATA_FILE, "utf8");
-      return JSON.parse(raw);
-    }
+    const { list } = await import("@vercel/blob");
+    const { blobs } = await list({ prefix: BLOB_FILENAME });
+    if (blobs.length === 0) return null;
+    // Use the most recently uploaded blob
+    const latest = blobs.sort(
+      (a, b) =>
+        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+    )[0];
+    const res = await fetch(latest.url);
+    if (!res.ok) return null;
+    return await res.json();
   } catch {
-    // fall through to default data
+    return null;
+  }
+}
+
+async function blobWrite(data: object): Promise<void> {
+  const { put } = await import("@vercel/blob");
+  await put(BLOB_FILENAME, JSON.stringify(data), {
+    access: "public",
+    contentType: "application/json",
+    // overwrite the existing file each time
+    addRandomSuffix: false,
+  });
+}
+
+// ── Local file fallback (dev only) ───────────────────────────────────────────
+
+function localRead(): object | null {
+  try {
+    const fs = require("fs") as typeof import("fs");
+    const path = require("path") as typeof import("path");
+    const file = path.join(process.cwd(), "data", "menu.json");
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function localWrite(data: object): void {
+  const fs = require("fs") as typeof import("fs");
+  const path = require("path") as typeof import("path");
+  const file = path.join(process.cwd(), "data", "menu.json");
+  const dir = path.dirname(file);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+const hasBlobToken = () => !!process.env.BLOB_READ_WRITE_TOKEN;
+
+export async function readMenuData(): Promise<object> {
+  if (hasBlobToken()) {
+    const data = await blobRead();
+    if (data) return data;
+  } else {
+    const data = localRead();
+    if (data) return data;
   }
   return fullMenuData as object;
 }
 
-export function writeMenuData(data: object): void {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+export async function writeMenuData(data: object): Promise<void> {
+  if (hasBlobToken()) {
+    await blobWrite(data);
+  } else {
+    localWrite(data);
   }
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
 }
