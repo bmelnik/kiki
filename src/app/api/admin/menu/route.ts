@@ -1,30 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getVerifiedToken } from "@/lib/adminAuth";
-import { fullMenuData } from "@/lib/mainMenuData";
-import fs from "fs";
-import path from "path";
-
-const DATA_FILE = path.join(process.cwd(), "data", "menu.json");
-
-function readMenuData(): object {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = fs.readFileSync(DATA_FILE, "utf8");
-      return JSON.parse(raw);
-    }
-  } catch {
-    // fall through to default
-  }
-  return fullMenuData as object;
-}
-
-function writeMenuData(data: object): void {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
-}
+import { readMenuData, writeMenuData } from "@/lib/menuStorage";
 
 /** GET /api/admin/menu – returns current menu data (requires auth) */
 export async function GET(req: NextRequest) {
@@ -43,6 +19,16 @@ export async function POST(req: NextRequest) {
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
     return NextResponse.json({ error: "Invalid menu data" }, { status: 400 });
   }
-  writeMenuData(body);
+  try {
+    writeMenuData(body);
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "Failed to persist menu changes on server storage. Configure writable persistent storage for production.",
+      },
+      { status: 500 }
+    );
+  }
   return NextResponse.json({ ok: true });
 }

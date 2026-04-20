@@ -205,6 +205,11 @@ export default function AdminPage() {
           router.push("/admin/login");
           return;
         }
+        if (!res.ok) {
+          const errorBody = await res.json().catch(() => null);
+          setSaveMsg(errorBody?.error ?? "שגיאה בשמירה");
+          return;
+        }
         setSaveMsg("✓ נשמר בהצלחה");
         setTimeout(() => setSaveMsg(""), 3000);
       } catch {

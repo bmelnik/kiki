@@ -51,6 +51,11 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("admin_token")?.value ?? "";
   const secret = process.env.SESSION_SECRET ?? "";
 
+  if (!secret) {
+    console.error("Admin auth middleware is missing SESSION_SECRET.");
+    return NextResponse.redirect(new URL("/admin/login?error=config", req.url));
+  }
+
   if (!token || !(await verifyToken(token, secret))) {
     const loginUrl = new URL("/admin/login", req.url);
     return NextResponse.redirect(loginUrl);

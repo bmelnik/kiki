@@ -5,7 +5,17 @@ export async function POST(req: NextRequest) {
   const { password } = await req.json();
 
   const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword || password !== adminPassword) {
+  const sessionSecret = process.env.SESSION_SECRET;
+
+  if (!adminPassword || !sessionSecret) {
+    console.error("Admin auth is not configured. Missing ADMIN_PASSWORD or SESSION_SECRET.");
+    return NextResponse.json(
+      { error: "Admin auth is not configured on the server" },
+      { status: 500 }
+    );
+  }
+
+  if (password !== adminPassword) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

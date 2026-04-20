@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { fullMenuData, type MenuBranchMap, type MenuItem } from "@/lib/mainMenuData";
+import { fullMenuData, type MenuBranchMap, type MenuData, type MenuItem } from "@/lib/mainMenuData";
 import { getGroupedRows } from "@/lib/menuGrouping";
 
 // Components
-function Header() {
+function Header({ menuData }: { menuData: MenuData }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const menuCategories = Object.keys(fullMenuData);
+  const menuCategories = Object.keys(menuData);
 
   const navLinks = [
     { name: "בית", href: "#" },
@@ -140,9 +140,15 @@ function MenuDivider() {
   return <div className="border-t border-dashed border-gray-300 my-6" />;
 }
 
-function MainMenuSection() {
-  const categories = Object.keys(fullMenuData);
+function MainMenuSection({ menuData }: { menuData: MenuData }) {
+  const categories = Object.keys(menuData);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
+
+  useEffect(() => {
+    if (!categories.includes(activeCategory)) {
+      setActiveCategory(categories[0]);
+    }
+  }, [activeCategory, categories]);
 
   // Listen for category selection from the header dropdown
   useEffect(() => {
@@ -153,7 +159,11 @@ function MainMenuSection() {
     return () => window.removeEventListener('set-menu-category', handler);
   }, []);
 
-  const activeBranch = fullMenuData[activeCategory];
+  if (!activeCategory) {
+    return null;
+  }
+
+  const activeBranch = menuData[activeCategory];
   const sections = Object.entries(activeBranch as MenuBranchMap);
   const middle = Math.ceil(sections.length / 2);
   const leftColumn = sections.slice(0, middle);
@@ -328,11 +338,26 @@ function Footer() {
 }
 
 export default function DrinksMenuPage() {
+  const [menuData, setMenuData] = useState<MenuData>(fullMenuData);
+
+  useEffect(() => {
+    fetch("/api/menu")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data === "object" && !Array.isArray(data)) {
+          setMenuData(data as MenuData);
+        }
+      })
+      .catch(() => {
+        // Keep local fallback if API fails
+      });
+  }, []);
+
   return (
     <main className="min-h-screen">
-      <Header />
+      <Header menuData={menuData} />
       <Hero />
-      <MainMenuSection />
+      <MainMenuSection menuData={menuData} />
       <Footer />
     </main>
   );

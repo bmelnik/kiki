@@ -22,6 +22,8 @@ export default function AdminLoginPage() {
       if (res.ok) {
         router.push("/admin");
         router.refresh();
+      } else if (res.status === 500) {
+        setError("השרת לא הוגדר נכון. יש להגדיר ADMIN_PASSWORD ו-SESSION_SECRET בסביבת הייצור.");
       } else {
         setError("סיסמה שגויה, נסה שוב");
       }
