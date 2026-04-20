@@ -7,14 +7,17 @@ const BLOB_FILENAME = "kiki-menu.json";
 async function blobRead(): Promise<object | null> {
   try {
     const { list } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: BLOB_FILENAME });
+    const token = process.env.BLOB_READ_WRITE_TOKEN!;
+    const { blobs } = await list({ prefix: BLOB_FILENAME, token });
     if (blobs.length === 0) return null;
-    // Use the most recently uploaded blob
     const latest = blobs.sort(
       (a, b) =>
         new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
     )[0];
-    const res = await fetch(latest.url);
+    // Private blobs require the token as a Bearer header
+    const res = await fetch(latest.url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -25,9 +28,8 @@ async function blobRead(): Promise<object | null> {
 async function blobWrite(data: object): Promise<void> {
   const { put } = await import("@vercel/blob");
   await put(BLOB_FILENAME, JSON.stringify(data), {
-    access: "public",
+    access: "private",
     contentType: "application/json",
-    // overwrite the existing file each time
     addRandomSuffix: false,
   });
 }
