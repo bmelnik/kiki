@@ -6,7 +6,7 @@ const BLOB_FILENAME = "kiki-menu.json";
 
 async function blobRead(): Promise<object | null> {
   try {
-    const { list } = await import("@vercel/blob");
+    const { get, list } = await import("@vercel/blob");
     const token = process.env.BLOB_READ_WRITE_TOKEN!;
     const { blobs } = await list({ prefix: BLOB_FILENAME, token });
     if (blobs.length === 0) return null;
@@ -14,12 +14,14 @@ async function blobRead(): Promise<object | null> {
       (a, b) =>
         new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
     )[0];
-    // Private blobs require the token as a Bearer header
-    const res = await fetch(latest.url, {
-      headers: { Authorization: `Bearer ${token}` },
+    const result = await get(latest.pathname, {
+      access: "private",
+      token,
+      useCache: false,
     });
-    if (!res.ok) return null;
-    return await res.json();
+    if (!result || result.statusCode !== 200 || !result.stream) return null;
+    const text = await new Response(result.stream).text();
+    return JSON.parse(text);
   } catch {
     return null;
   }

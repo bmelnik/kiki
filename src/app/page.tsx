@@ -341,7 +341,7 @@ export default function DrinksMenuPage() {
   const [menuData, setMenuData] = useState<MenuData>(fullMenuData);
 
   useEffect(() => {
-    fetch("/api/menu")
+    fetch("/api/menu", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && typeof data === "object" && !Array.isArray(data)) {
