@@ -172,7 +172,8 @@ function MainMenuSection({ menuData }: { menuData: MenuData }) {
   const isMenuItemArray = (branch: MenuItem[] | MenuBranchMap): branch is MenuItem[] => Array.isArray(branch);
 
   const renderItems = (subcategory: string, items: MenuItem[]) => {
-    const grouped = getGroupedRows(subcategory, items);
+    const visibleItems = items.filter((item) => !item.hidden);
+    const grouped = getGroupedRows(subcategory, visibleItems);
 
     if (grouped) {
       return (
@@ -202,7 +203,7 @@ function MainMenuSection({ menuData }: { menuData: MenuData }) {
       );
     }
 
-    return items.map((item, itemIndex) => (
+    return visibleItems.map((item, itemIndex) => (
       <div key={item.name + itemIndex} className="mb-4">
         <div className="flex justify-between items-start gap-4">
           <span className="text-[#0D3B52] font-semibold font-body">{item.name}</span>

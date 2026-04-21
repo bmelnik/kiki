@@ -10,6 +10,7 @@ type MenuItem = {
   price: number;
   desc?: string;
   extras?: string;
+  hidden?: boolean;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -266,6 +267,15 @@ export default function AdminPage() {
     setConfirmDelete(null);
   }
 
+  function handleToggleHidden(index: number) {
+    const newItems = items.map((it, i) =>
+      i === index ? { ...it, hidden: !it.hidden } : it
+    );
+    const updated = setAtPath(menu!, path, newItems);
+    setMenu(updated);
+    save(updated);
+  }
+
   // ── Category operations ────────────────────────────────────────────────────
 
   function handleAddCategory() {
@@ -478,15 +488,18 @@ export default function AdminPage() {
                         onCancel={() => setEditIndex(null)}
                       />
                     ) : (
-                      <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-start gap-4">
+                      <div className={`rounded-xl border px-5 py-4 flex items-start gap-4 ${item.hidden ? "bg-gray-100 border-gray-200 opacity-60" : "bg-white border-gray-200"}`}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-3 flex-wrap">
-                            <span className="font-semibold text-gray-900">
+                            <span className={`font-semibold ${item.hidden ? "line-through text-gray-400" : "text-gray-900"}`}>
                               {item.name}
                             </span>
                             <span className="text-[#0D3B52] font-bold text-sm">
                               ₪{item.price}
                             </span>
+                            {item.hidden && (
+                              <span className="text-xs bg-yellow-100 text-yellow-700 border border-yellow-300 rounded px-1.5 py-0.5">מוסתר</span>
+                            )}
                           </div>
                           {item.desc && (
                             <p className="text-sm text-gray-500 mt-0.5 truncate">
@@ -508,6 +521,16 @@ export default function AdminPage() {
                             className="text-xs border border-gray-300 rounded px-3 py-1 hover:bg-gray-50"
                           >
                             עריכה
+                          </button>
+                          <button
+                            onClick={() => handleToggleHidden(index)}
+                            className={`text-xs border rounded px-3 py-1 ${
+                              item.hidden
+                                ? "border-green-300 text-green-700 hover:bg-green-50"
+                                : "border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+                            }`}
+                          >
+                            {item.hidden ? "הצג" : "הסתר"}
                           </button>
                           <button
                             onClick={() => setConfirmDelete(index)}

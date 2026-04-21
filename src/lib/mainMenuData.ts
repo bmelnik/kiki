@@ -3,6 +3,7 @@ export type MenuItem = {
   price: number;
   desc?: string;
   extras?: string;
+  hidden?: boolean;
 };
 
 export interface MenuBranchMap {
