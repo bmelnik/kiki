@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { fullMenuData } from "@/lib/mainMenuData";
 
 const BLOB_FILENAME = "kiki-menu.json";
@@ -41,8 +43,6 @@ async function blobWrite(data: object): Promise<void> {
 
 function localRead(): object | null {
   try {
-    const fs = require("fs") as typeof import("fs");
-    const path = require("path") as typeof import("path");
     const file = path.join(process.cwd(), "data", "menu.json");
     if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch {
@@ -52,8 +52,6 @@ function localRead(): object | null {
 }
 
 function localWrite(data: object): void {
-  const fs = require("fs") as typeof import("fs");
-  const path = require("path") as typeof import("path");
   const file = path.join(process.cwd(), "data", "menu.json");
   const dir = path.dirname(file);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

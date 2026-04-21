@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>תפריט ברמנים</title>
+
+<style>
+body {
+  font-family: 'Arial', sans-serif;
+  direction: rtl;
+  margin: 0;
+  padding: 20px;
+  background: white;
+}
+
+.container {
+  column-count: 2;
+  column-gap: 40px;
+}
+
+.cocktail {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.desc {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.recipe {
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.note {
+  font-size: 12px;
+  color: #888;
+}
+
+@media print {
+  body {
+    padding: 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h1 style="text-align:center;">🍸 תפריט ברמנים</h1>
+
+<div class="container">
+
+<div class="cocktail">
+  <div class="title">וויסקי סאוור <span>60₪</span></div>
+  <div class="desc">חמצמץ ומאוזן</div>
+  <div class="recipe">וויסקי 60 | לימון 30 | סירופ 15</div>
+  <div class="recipe">נער → קרח → סנן</div>
+  <div class="note">חזק: ↑וויסקי | חלש: ↓וויסקי</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">מרגריטה <span>58₪</span></div>
+  <div class="desc">מרענן עם ליים</div>
+  <div class="recipe">טקילה 50 | טריפל סק 25 | ליים 25</div>
+  <div class="recipe">נער | כוס עם מלח</div>
+  <div class="note">חזק: ↑טקילה | חלש: ↑ליים</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">פניצילין <span>58₪</span></div>
+  <div class="desc">מעושן ומורכב</div>
+  <div class="recipe">וויסקי 50 | מעושן 10 | לימון 25 | דבש 20 | ג'ינג'ר 20</div>
+  <div class="recipe">נער → מזוג → לצוף מעושן</div>
+  <div class="note">חזק: ↑מעושן | חלש: ↑דבש</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">מוחיטו <span>54₪</span></div>
+  <div class="desc">רענן</div>
+  <div class="recipe">רום 50 | ליים 25 | סוכר 10 | נענע | סודה</div>
+  <div class="recipe">למעוך → קרח → סודה</div>
+  <div class="note">חזק: ↑רום | חלש: ↑סודה</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">נגרוני <span>56₪</span></div>
+  <div class="desc">מריר-מתוק</div>
+  <div class="recipe">ג'ין 30 | קמפרי 30 | ורמוט 30</div>
+  <div class="recipe">לבחוש עם קרח</div>
+  <div class="note">חזק: ↑ג'ין | חלש: ↑ורמוט</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">אפרול שפריץ <span>56₪</span></div>
+  <div class="desc">קליל ומבעבע</div>
+  <div class="recipe">אפרול 60 | פרוסקו 90 | סודה 30</div>
+  <div class="recipe">לבנות בכוס</div>
+  <div class="note">חזק: ↑אפרול | חלש: ↑סודה</div>
+</div>
+
+<div class="cocktail">
+  <div class="title">אספרסו מרטיני <span>56₪</span></div>
+  <div class="desc">עשיר ומעורר</div>
+  <div class="recipe">וודקה 50 | אספרסו 30 | ליקר 20 | סוכר 10</div>
+  <div class="recipe">נער חזק</div>
+  <div class="note">חזק: ↑וודקה | חלש: ↑קפה</div>
+</div>
+
+</div>
+
+</body>
+</html>
