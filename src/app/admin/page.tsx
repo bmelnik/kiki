@@ -53,6 +53,32 @@ function deleteAtPath(
   return { ...data, [head]: deleteAtPath(data[head], rest) };
 }
 
+function collectItemListPaths(node: MenuNode, currentPath: string[] = []): string[][] {
+  if (Array.isArray(node)) {
+    return [currentPath];
+  }
+
+  return Object.entries(node).flatMap(([key, child]) =>
+    collectItemListPaths(child, [...currentPath, key])
+  );
+}
+
+function pathToValue(path: string[]): string {
+  return JSON.stringify(path);
+}
+
+function valueToPath(value: string): string[] {
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.every((segment) => typeof segment === "string")) {
+      return parsed;
+    }
+  } catch {
+    // ignore invalid serialized value
+  }
+  return [];
+}
+
 // ─── Item Form ───────────────────────────────────────────────────────────────
 
 type ItemFormProps = {
@@ -173,6 +199,7 @@ export default function AdminPage() {
   const [confirmDeleteCategory, setConfirmDeleteCategory] = useState<
     string | null
   >(null);
+  const [moveTargetByIndex, setMoveTargetByIndex] = useState<Record<number, string>>({});
 
   // Fetch menu data on mount
   useEffect(() => {
@@ -241,6 +268,11 @@ export default function AdminPage() {
   const subcategories = isItemsList
     ? []
     : Object.keys(currentNode as object);
+  const allItemListPaths = collectItemListPaths(menu as MenuNode);
+  const currentPathValue = pathToValue(path);
+  const moveTargets = allItemListPaths.filter(
+    (candidatePath) => pathToValue(candidatePath) !== currentPathValue
+  );
 
   // ── Item operations ────────────────────────────────────────────────────────
 
@@ -265,6 +297,44 @@ export default function AdminPage() {
     setMenu(updated);
     save(updated);
     setConfirmDelete(null);
+  }
+
+  function handleMoveItemOrder(index: number, direction: -1 | 1) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= items.length) return;
+
+    const newItems = [...items];
+    const [moved] = newItems.splice(index, 1);
+    newItems.splice(targetIndex, 0, moved);
+
+    const updated = setAtPath(menu!, path, newItems);
+    setMenu(updated);
+    save(updated);
+  }
+
+  function handleMoveItemToCategory(index: number, destinationValue: string) {
+    const destinationPath = valueToPath(destinationValue);
+    if (destinationPath.length === 0) return;
+
+    const destinationNode = getAtPath(menu!, destinationPath);
+    if (!Array.isArray(destinationNode)) return;
+
+    const itemToMove = items[index];
+    if (!itemToMove) return;
+
+    let updated = setAtPath(menu!, path, items.filter((_, i) => i !== index));
+    const updatedDestinationNode = getAtPath(updated, destinationPath);
+    if (!Array.isArray(updatedDestinationNode)) return;
+
+    updated = setAtPath(updated, destinationPath, [...updatedDestinationNode, itemToMove]);
+    setMenu(updated);
+    save(updated);
+
+    setMoveTargetByIndex((prev) => {
+      const copy = { ...prev };
+      delete copy[index];
+      return copy;
+    });
   }
 
   function handleToggleHidden(index: number) {
@@ -463,7 +533,7 @@ export default function AdminPage() {
             </div>
 
             {/* Add item form */}
-            {showAddItem && !editIndex && (
+            {showAddItem && editIndex === null && (
               <div className="mb-4">
                 <ItemForm
                   onSave={handleAddItem}
@@ -514,6 +584,22 @@ export default function AdminPage() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <button
+                            onClick={() => handleMoveItemOrder(index, -1)}
+                            disabled={index === 0}
+                            className="text-xs border border-gray-300 rounded px-3 py-1 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="העבר למעלה"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            onClick={() => handleMoveItemOrder(index, 1)}
+                            disabled={index === items.length - 1}
+                            className="text-xs border border-gray-300 rounded px-3 py-1 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="העבר למטה"
+                          >
+                            ↓
+                          </button>
+                          <button
                             onClick={() => {
                               setEditIndex(index);
                               setShowAddItem(false);
@@ -539,6 +625,42 @@ export default function AdminPage() {
                             מחק
                           </button>
                         </div>
+                        {moveTargets.length > 0 && (
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <select
+                              value={moveTargetByIndex[index] ?? ""}
+                              onChange={(e) =>
+                                setMoveTargetByIndex((prev) => ({
+                                  ...prev,
+                                  [index]: e.target.value,
+                                }))
+                              }
+                              className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                            >
+                              <option value="">העבר לקטגוריה...</option>
+                              {moveTargets.map((targetPath) => {
+                                const value = pathToValue(targetPath);
+                                return (
+                                  <option key={value} value={value}>
+                                    {targetPath.join(" / ")}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                            <button
+                              onClick={() =>
+                                handleMoveItemToCategory(
+                                  index,
+                                  moveTargetByIndex[index] ?? ""
+                                )
+                              }
+                              disabled={!moveTargetByIndex[index]}
+                              className="text-xs border border-blue-300 text-blue-700 rounded px-3 py-1 hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              העבר
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
