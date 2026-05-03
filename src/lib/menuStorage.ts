@@ -51,6 +51,9 @@ export async function writeMenuData(data: object): Promise<void> {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     await blobWrite(data);
   }
-  // Also write to local for immediate dev/preview visibility
-  localWrite(data);
+
+  // In serverless production, /var/task is read-only. Keep local writes for dev only.
+  if (process.env.NODE_ENV !== "production") {
+    localWrite(data);
+  }
 }
