@@ -62,15 +62,27 @@ function localWrite(data: object): void {
 
 const hasBlobToken = () => !!process.env.BLOB_READ_WRITE_TOKEN;
 
+// In-memory cache to avoid hitting Vercel Blob on every request
+let menuCache: { data: object; expiresAt: number } | null = null;
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export function invalidateMenuCache() {
+  menuCache = null;
+}
+
 export async function readMenuData(): Promise<object> {
-  if (hasBlobToken()) {
-    const data = await blobRead();
-    if (data) return data;
-  } else {
-    const data = localRead();
-    if (data) return data;
+  if (menuCache && Date.now() < menuCache.expiresAt) {
+    return menuCache.data;
   }
-  return fullMenuData as object;
+  let data: object | null = null;
+  if (hasBlobToken()) {
+    data = await blobRead();
+  } else {
+    data = localRead();
+  }
+  const result = data ?? (fullMenuData as object);
+  menuCache = { data: result, expiresAt: Date.now() + CACHE_TTL_MS };
+  return result;
 }
 
 export async function writeMenuData(data: object): Promise<void> {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getVerifiedToken } from "@/lib/adminAuth";
-import { readMenuData, writeMenuData } from "@/lib/menuStorage";
+import { readMenuData, writeMenuData, invalidateMenuCache } from "@/lib/menuStorage";
 
 /** GET /api/admin/menu – returns current menu data (requires auth) */
 export async function GET(req: NextRequest) {
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     await writeMenuData(body);
+    invalidateMenuCache();
   } catch (err) {
     console.error("writeMenuData failed:", err);
     return NextResponse.json(
