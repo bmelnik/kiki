@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getVerifiedToken } from "@/lib/adminAuth";
-import { readMenuData, writeMenuData, invalidateMenuCache } from "@/lib/menuStorage";
+import { readMenuData, writeMenuData } from "@/lib/menuStorage";
 
 /** GET /api/admin/menu – returns current menu data (requires auth) */
 export async function GET(req: NextRequest) {
@@ -27,7 +27,14 @@ export async function POST(req: NextRequest) {
   }
   try {
     await writeMenuData(body);
-    invalidateMenuCache();
+
+    // Trigger Vercel Deploy Hook to rebuild with updated menu
+    const hookUrl = process.env.VERCEL_DEPLOY_HOOK_URL;
+    if (hookUrl) {
+      fetch(hookUrl, { method: "POST" }).catch((err) =>
+        console.error("Deploy hook trigger failed:", err)
+      );
+    }
   } catch (err) {
     console.error("writeMenuData failed:", err);
     return NextResponse.json(
@@ -35,5 +42,5 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, message: "Menu updated. Changes will be live after rebuild (~1 min)." });
 }

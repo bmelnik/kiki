@@ -6,29 +6,6 @@ const BLOB_FILENAME = "kiki-menu.json";
 
 // ── Vercel Blob helpers ───────────────────────────────────────────────────────
 
-async function blobRead(): Promise<object | null> {
-  try {
-    const { get, list } = await import("@vercel/blob");
-    const token = process.env.BLOB_READ_WRITE_TOKEN!;
-    const { blobs } = await list({ prefix: BLOB_FILENAME, token });
-    if (blobs.length === 0) return null;
-    const latest = blobs.sort(
-      (a, b) =>
-        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
-    )[0];
-    const result = await get(latest.pathname, {
-      access: "private",
-      token,
-      useCache: false,
-    });
-    if (!result || result.statusCode !== 200 || !result.stream) return null;
-    const text = await new Response(result.stream).text();
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
 async function blobWrite(data: object): Promise<void> {
   const { put } = await import("@vercel/blob");
   await put(BLOB_FILENAME, JSON.stringify(data), {
@@ -59,36 +36,21 @@ function localWrite(data: object): void {
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
-
-const hasBlobToken = () => !!process.env.BLOB_READ_WRITE_TOKEN;
-
-// In-memory cache to avoid hitting Vercel Blob on every request
-let menuCache: { data: object; expiresAt: number } | null = null;
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-export function invalidateMenuCache() {
-  menuCache = null;
-}
+// Menu is now completely static at runtime (bundled at build time from data/menu.json).
+// No Blob reads occur during request handling.
 
 export async function readMenuData(): Promise<object> {
-  if (menuCache && Date.now() < menuCache.expiresAt) {
-    return menuCache.data;
-  }
-  let data: object | null = null;
-  if (hasBlobToken()) {
-    data = await blobRead();
-  } else {
-    data = localRead();
-  }
-  const result = data ?? (fullMenuData as object);
-  menuCache = { data: result, expiresAt: Date.now() + CACHE_TTL_MS };
-  return result;
+  // Read from local file (bundled at build time from Blob)
+  const data = localRead();
+  return data ?? (fullMenuData as object);
 }
 
 export async function writeMenuData(data: object): Promise<void> {
-  if (hasBlobToken()) {
+  // Write to Blob (triggered by admin save)
+  // Build hook will pull this data on next deploy
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
     await blobWrite(data);
-  } else {
-    localWrite(data);
   }
+  // Also write to local for immediate dev/preview visibility
+  localWrite(data);
 }
