@@ -25,15 +25,25 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+  if (process.env.NODE_ENV === "production" && !process.env.VERCEL_DEPLOY_HOOK_URL) {
+    return NextResponse.json(
+      { error: "VERCEL_DEPLOY_HOOK_URL is not set. Menu is saved to Blob, but public site will not update until a redeploy runs." },
+      { status: 500 }
+    );
+  }
   try {
     await writeMenuData(body);
 
     // Trigger Vercel Deploy Hook to rebuild with updated menu
     const hookUrl = process.env.VERCEL_DEPLOY_HOOK_URL;
     if (hookUrl) {
-      fetch(hookUrl, { method: "POST" }).catch((err) =>
-        console.error("Deploy hook trigger failed:", err)
-      );
+      const deployRes = await fetch(hookUrl, { method: "POST" });
+      if (!deployRes.ok) {
+        const deployText = await deployRes.text().catch(() => "");
+        throw new Error(
+          `Deploy hook failed (${deployRes.status})${deployText ? `: ${deployText.slice(0, 200)}` : ""}`
+        );
+      }
     }
   } catch (err) {
     console.error("writeMenuData failed:", err);
