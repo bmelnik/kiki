@@ -25,12 +25,6 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-  if (process.env.NODE_ENV === "production" && !process.env.VERCEL_DEPLOY_HOOK_URL) {
-    return NextResponse.json(
-      { error: "VERCEL_DEPLOY_HOOK_URL is not set. Menu is saved to Blob, but public site will not update until a redeploy runs." },
-      { status: 500 }
-    );
-  }
   try {
     await writeMenuData(body);
 
@@ -44,9 +38,15 @@ export async function POST(req: NextRequest) {
           `Deploy hook failed (${deployRes.status})${deployText ? `: ${deployText.slice(0, 200)}` : ""}`
         );
       }
+    } else {
+      return NextResponse.json({
+        ok: true,
+        message:
+          "Menu saved to Blob. Public menu will update after the next deploy because VERCEL_DEPLOY_HOOK_URL is not set.",
+      });
     }
   } catch (err) {
-    console.error("writeMenuData failed:", err);
+    console.error("admin menu update failed:", err);
     return NextResponse.json(
       { error: String(err instanceof Error ? err.message : err) },
       { status: 500 }

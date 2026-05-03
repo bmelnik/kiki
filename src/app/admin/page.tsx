@@ -238,7 +238,8 @@ export default function AdminPage() {
           setSaveMsg(errorBody?.error ?? "שגיאה בשמירה");
           return;
         }
-        setSaveMsg("✓ נשמר בהצלחה");
+        const successBody = await res.json().catch(() => null);
+        setSaveMsg(successBody?.message ?? "✓ נשמר בהצלחה");
         setTimeout(() => setSaveMsg(""), 3000);
       } catch {
         setSaveMsg("שגיאה בשמירה");
