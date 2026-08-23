@@ -316,11 +316,11 @@ function Footer() {
 
           {/* Opening Hours */}
           <div className="text-center md:text-right">
-            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">שעות פתיחה</h4>
+            <h4 className="font-heading text-sm tracking-widest mb-4 text-[#7e6444]">שעות עבודה</h4>
             <div className="font-body text-sm text-gray-300">
-              <p>א - ה: 08:00 - 00:00</p>
-              <p>ו: 08:00 - 15:00</p>
-              <p>ש: סגור</p>
+              <p>א-ה 8:30-23:30</p>
+              <p>יום שישי 9:00-14:00</p>
+              <p>מוצ״ש 20:00-23:30</p>
             </div>
           </div>
 
