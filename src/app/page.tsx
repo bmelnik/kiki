@@ -310,7 +310,6 @@ function Footer() {
             <div className="font-body text-sm text-gray-300 space-y-2">
               <p>כתובת: רפאל איתן 5<br />אם המושבות<br />פתח תקווה</p>
               <p className="pt-2">טלפון: <Link href="tel:0547668877" className="hover:text-[#7e6444] transition-colors">054-7668877</Link></p>
-              <p className="pt-2">אימייל:<br /><Link href="mailto:admin@kiki.rest.co.il" className="hover:text-[#7e6444] transition-colors">admin@kiki.rest.co.il</Link></p>
             </div>
           </div>
 
