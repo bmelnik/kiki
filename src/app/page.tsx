@@ -14,7 +14,7 @@ function Header({ menuData }: { menuData: MenuData }) {
   const navLinks = [
     { name: "בית", href: "#" },
     { name: "תפריט", href: "#main-menu" },
-    { name: "הזמנת מקום", href: "#" },
+    { name: "הזמנת מקום", href: "https://sl.assento.co.il/1Xhix8tUJO" },
     { name: "אודות", href: "#" },
   ];
 
