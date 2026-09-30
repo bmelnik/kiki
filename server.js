@@ -7,19 +7,24 @@ const port = Number.parseInt(process.env.PORT || "3000", 10);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
+const ready = app.prepare();
 
-app
-  .prepare()
+ready
   .then(() => {
-    const server = express();
-
-    server.all(/.*/, (req, res) => handle(req, res));
-
-    server.listen(port, hostname, () => {
-      console.log(`> Ready on http://${hostname}:${port}`);
-    });
+    console.log("Next.js is ready");
   })
   .catch((error) => {
-    console.error("Server startup failed", error);
-    process.exit(1);
+    console.error("Next.js startup failed", error);
   });
+
+const server = express();
+
+server.all(/.*/, (req, res) => {
+  ready.then(() => handle(req, res)).catch(() => {
+    res.status(503).send("The application is still starting. Please refresh shortly.");
+  });
+});
+
+server.listen(port, hostname, () => {
+  console.log(`> Ready on http://${hostname}:${port}`);
+});

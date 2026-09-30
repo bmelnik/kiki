@@ -8,6 +8,13 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ["**/.git/**", "**/.venv/**", "**/node_modules/**", "**/.next/**"],
+    };
+    return config;
+  },
 }
 
 module.exports = nextConfig

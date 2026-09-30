@@ -7,13 +7,11 @@ import { fullMenuData, type MenuBranchMap, type MenuData, type MenuItem } from "
 import { getGroupedRows } from "@/lib/menuGrouping";
 
 // Components
-function Header({ menuData }: { menuData: MenuData }) {
+export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const menuCategories = Object.keys(menuData);
-
   const navLinks = [
     { name: "בית", href: "#" },
-    { name: "תפריט", href: "#main-menu" },
+    { name: "תפריט", href: "/menu" },
     { name: "הזמנת מקום", href: "https://sl.assento.co.il/1Xhix8tUJO" },
     { name: "אודות", href: "#" },
   ];
@@ -23,7 +21,7 @@ function Header({ menuData }: { menuData: MenuData }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link href="#" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0">
             <Image
               src="/kiki-logo.svg"
               alt="Kiki"
@@ -35,37 +33,7 @@ function Header({ menuData }: { menuData: MenuData }) {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) =>
-              link.name === "תפריט" ? (
-                <div key={link.name} className="relative group">
-                  <Link
-                    href={link.href}
-                    className="flex items-center gap-1 text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide"
-                  >
-                    {link.name}
-                    <svg className="w-3 h-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </Link>
-                  <div className="absolute left-1/2 top-full hidden min-w-40 -translate-x-1/2 bg-[#0D3B52] border border-[#333] shadow-lg group-hover:block z-50" dir="rtl">
-                    {menuCategories.map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => {
-                          const el = document.getElementById('main-menu');
-                          if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          // trigger category via custom event
-                          window.dispatchEvent(new CustomEvent('set-menu-category', { detail: cat }));
-                        }}
-                        className="block w-full text-right px-4 py-2 text-sm text-white hover:bg-[#2a2522] transition-colors font-body"
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
+            {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
@@ -73,8 +41,7 @@ function Header({ menuData }: { menuData: MenuData }) {
                 >
                   {link.name}
                 </Link>
-              )
-            )}
+            ))}
           </nav>
 
           {/* Right side */}
@@ -104,13 +71,14 @@ function Header({ menuData }: { menuData: MenuData }) {
         <div className="lg:hidden bg-[#0D3B52] border-t border-[#333]">
           <nav className="px-4 py-4 space-y-3">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="block text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide py-2"
-              >
-                {link.name}
-              </Link>
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-white text-sm font-medium hover:text-[#7e6444] transition-colors font-body uppercase tracking-wide py-2"
+                >
+                  {link.name}
+                </Link>
             ))}
           </nav>
         </div>
@@ -140,7 +108,7 @@ function MenuDivider() {
   return <div className="border-t border-dashed border-gray-300 my-6" />;
 }
 
-function MainMenuSection({ menuData }: { menuData: MenuData }) {
+export function MainMenuSection({ menuData }: { menuData: MenuData }) {
   const categories = Object.keys(menuData);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
 
@@ -149,15 +117,6 @@ function MainMenuSection({ menuData }: { menuData: MenuData }) {
       setActiveCategory(categories[0]);
     }
   }, [activeCategory, categories]);
-
-  // Listen for category selection from the header dropdown
-  useEffect(() => {
-    const handler = (e: Event) => {
-      setActiveCategory((e as CustomEvent<string>).detail);
-    };
-    window.addEventListener('set-menu-category', handler);
-    return () => window.removeEventListener('set-menu-category', handler);
-  }, []);
 
   if (!activeCategory) {
     return null;
@@ -338,26 +297,10 @@ function Footer() {
 }
 
 export default function DrinksMenuPage() {
-  const [menuData, setMenuData] = useState<MenuData>(fullMenuData);
-
-  useEffect(() => {
-    fetch("/api/menu", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && typeof data === "object" && !Array.isArray(data)) {
-          setMenuData(data as MenuData);
-        }
-      })
-      .catch(() => {
-        // Keep local fallback if API fails
-      });
-  }, []);
-
   return (
     <main className="min-h-screen">
-      <Header menuData={menuData} />
+      <Header />
       <Hero />
-      <MainMenuSection menuData={menuData} />
       <Footer />
     </main>
   );
