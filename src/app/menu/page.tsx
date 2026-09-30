@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Header } from "@/app/menu/MenuComponents";
-import { fullMenuData } from "@/lib/mainMenuData";
 
 const imageMenus = [
   { id: "food", label: "אוכל", pages: ["/menu-pages/food-1.png"] },
